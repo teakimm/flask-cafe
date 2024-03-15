@@ -90,3 +90,6 @@ def cafe_detail(cafe_id):
         'cafe/detail.html',
         cafe=cafe,
     )
+
+@app.route("/cafes/add", methods=["GET", "POST"])
+def addCafe():
