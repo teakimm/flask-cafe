@@ -17,7 +17,7 @@ app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", "shhhh")
 if app.debug:
     app.config['SQLALCHEMY_ECHO'] = True
 
-# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 
 toolbar = DebugToolbarExtension(app)
 
@@ -61,7 +61,7 @@ NOT_LOGGED_IN_MSG = "You are not logged in."
 def homepage():
     """Show homepage."""
 
-    return render_template("homepage.html")
+    return render_template("base.html")
 
 
 #######################################
