@@ -6,7 +6,7 @@ from flask import Flask, render_template, flash, session, redirect, g, jsonify, 
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from models import db, connect_db, Cafe, City, User, DEFAULT_USER_IMAGE
+from models import db, connect_db, Cafe, City, User, DEFAULT_USER_IMAGE, DEFAULT_CAFE_IMAGE
 from forms import CafeForm, SignupForm, LoginForm, ProfileEditForm
 
 
@@ -219,7 +219,7 @@ def edit_cafe(cafe_id):
         cafe.url = form.url.data
         cafe.address = form.address.data
         cafe.city_code = form.city_code.data
-        cafe.image_url = form.image_url.data or None
+        cafe.image_url = form.image_url.data or DEFAULT_CAFE_IMAGE
 
         if new_map:
             db.session.flush()
@@ -233,6 +233,25 @@ def edit_cafe(cafe_id):
     else:
         return render_template("cafe/edit-form.html", cafe=cafe, form=form)
 
+
+@app.post("/cafes/<int:cafe_id>/delete")
+def delete_cafe(cafe_id):
+    """deletes a cafe from the db"""
+
+    if not g.user or not g.user.admin:
+        flash("Access Denied", "danger")
+        return redirect("/cafes")
+
+    cafe = Cafe.query.get_or_404(cafe_id)
+
+    for like in cafe.liking_users:
+        db.session.delete(like)
+
+    db.session.delete(cafe)
+    db.session.commit()
+
+    flash(f'{cafe.name} has been deleted.', "danger")
+    return redirect("/cafes")
 
 #########################################################
 # users

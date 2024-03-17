@@ -9,6 +9,7 @@ from mapquest import save_map
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 DEFAULT_USER_IMAGE = "https://cdn.pixabay.com/photo/2012/04/26/19/43/profile-42914_640.png"
+DEFAULT_CAFE_IMAGE = "https://cafenapoleon.com/cdn/shop/files/collection-bio-equitable_1000x1000.jpg?v=1622054058"
 
 
 class City(db.Model):
@@ -75,7 +76,7 @@ class Cafe(db.Model):
     image_url = db.Column(
         db.Text,
         nullable=False,
-        default="/static/images/default-cafe.jpg",
+        default=DEFAULT_CAFE_IMAGE
     )
 
     city = db.relationship("City", backref='cafes')
@@ -207,13 +208,13 @@ class Like(db.Model):
 
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey('users.id'),
+        db.ForeignKey('users.id', ondelete="CASCADE"),
         primary_key=True,
     )
 
     cafe_id = db.Column(
         db.Integer,
-        db.ForeignKey('cafes.id'),
+        db.ForeignKey('cafes.id', ondelete="CASCADE"),
         primary_key=True,
     )
 

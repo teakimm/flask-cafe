@@ -48,13 +48,19 @@
       {{ cafe.get_city_state() }}<br>
     </p>
 
+    {% if g.user.admin %}
     <p>
       <a class="btn btn-outline-primary" href="/cafes/{{ cafe.id }}/edit">
         Edit Cafe
 
       </a>
+      <form action="/cafes/{{ cafe.id }}/delete" method="POST">
+        <button class="btn btn-outline-danger">Delete Cafe</button>
+      </form>
 
     </p>
+    {% endif %}
+
 
     <img class="img-fluid" src="/static/maps/{{ cafe.id }}.jpg">
 
