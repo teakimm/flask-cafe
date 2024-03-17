@@ -129,14 +129,12 @@ def logout():
     return redirect("/")
 
 
-
-
 #######################################
 # homepage
 
 @app.get("/")
 def homepage():
-    """Show homepage."""
+    """render homepage"""
 
     return render_template("homepage.html")
 
@@ -147,30 +145,27 @@ def homepage():
 
 @app.get('/cafes')
 def cafe_list():
-    """Return list of all cafes."""
+    """Render page of all the cafes in abc order"""
 
     cafes = Cafe.query.order_by('name').all()
 
-    return render_template(
-        'cafe/list.html',
-        cafes=cafes,
-    )
+    return render_template('cafe/list.html', cafes=cafes)
 
 
 @app.get('/cafes/<int:cafe_id>')
 def cafe_detail(cafe_id):
-    """Show detail for cafe."""
+    """Render page for a given cafe's details"""
 
     cafe = Cafe.query.get_or_404(cafe_id)
 
-    return render_template(
-        'cafe/detail.html',
-        cafe=cafe,
-    )
+    return render_template('cafe/detail.html', cafe=cafe)
 
 
 @app.route("/cafes/add", methods=["GET", "POST"])
 def add_Cafe():
+    """Renders the form or adds the cafe to the db given form data"""
+
+    #regular ole users should not be able to add/edit cafes
     if not g.user or not g.user.admin:
         flash("Access Denied", "danger")
         return redirect("/cafes")
@@ -196,7 +191,7 @@ def add_Cafe():
 
         db.session.commit()
 
-        flash(f"Added {cafe.name}.")
+        flash(f"Added {cafe.name}.", "success")
         return redirect(f"/cafes/{cafe.id}")
     else:
         return render_template("/cafe/add-form.html", form=form)
@@ -204,7 +199,7 @@ def add_Cafe():
 
 @app.route('/cafes/<int:cafe_id>/edit', methods=["GET", "POST"])
 def edit_cafe(cafe_id):
-    """Show edit form / handle editing of cafe."""
+    """Renders form or sends form data for editing a cafe"""
 
     if not g.user or not g.user.admin:
         flash("Access Denied", "danger")
@@ -216,6 +211,9 @@ def edit_cafe(cafe_id):
     form.city_code.choices = City.get_cities()
 
     if form.validate_on_submit():
+        new_map = (cafe.address != form.address.data or \
+                cafe.city_code != form.city_code.data)
+
         cafe.name = form.name.data
         cafe.description = form.description.data
         cafe.url = form.url.data
@@ -223,9 +221,13 @@ def edit_cafe(cafe_id):
         cafe.city_code = form.city_code.data
         cafe.image_url = form.image_url.data or None
 
+        if new_map:
+            db.session.flush()
+            cafe.save_map()
+
         db.session.commit()
 
-        flash(f"Edited {cafe.name}.")
+        flash(f"Edited {cafe.name}.", "success")
         return redirect(f"/cafes/{cafe.id}")
 
     else:
@@ -233,11 +235,11 @@ def edit_cafe(cafe_id):
 
 
 #########################################################
-#users
+# users
 
 @app.get('/profile')
 def profile():
-    """Show profile for user."""
+    """Render Page for user profile information"""
 
     if not g.user:
         flash(NOT_LOGGED_IN_MSG, "danger")
@@ -248,7 +250,7 @@ def profile():
 
 @app.route('/profile/edit', methods=["GET", "POST"])
 def profile_edit():
-    """Edit profile for user."""
+    """Renders form or sends form data for editing a user profile"""
 
     if not g.user:
         flash(NOT_LOGGED_IN_MSG, "danger")
@@ -274,13 +276,14 @@ def profile_edit():
         return render_template('profile/edit-form.html', form=form)
 
 
-
-
-
-
 @app.get("/api/likes")
 def check_like_cafe():
-    """Does user like a cafe?"""
+    """Given a query string of cafe id, checks if a user likes a cafe
+    If logged in, returns JSON:
+    {
+        "likes": true (or false)
+    }
+    """
 
     if not g.user:
         return jsonify({"error": "Not logged in"})
@@ -295,7 +298,15 @@ def check_like_cafe():
 
 @app.post("/api/like")
 def like_cafe():
-    """Like a cafe."""
+    """Passing a cafe id as JSON:
+    {
+        "cafe_id" : 3
+    }
+    add the liked cafe to the db and return JSON:
+    {
+        "liked" : 3
+    }
+    """
 
     if not g.user:
         return jsonify({"error": "Not logged in"})
@@ -306,13 +317,21 @@ def like_cafe():
     g.user.liked_cafes.append(current_cafe)
     db.session.commit()
 
-    res = {"liked": current_cafe.id}
-    return jsonify(res)
+    response = {"liked": current_cafe.id}
+    return jsonify(response)
 
 
 @app.post("/api/unlike")
 def unlike_cafe():
-    """Unlike a cafe."""
+    """Passing a cafe id as JSON:
+    {
+        "cafe_id" : 3
+    }
+    remove the liked cafe to the db and return JSON:
+    {
+        "unliked" : 3
+    }
+    """
 
     if not g.user:
         return jsonify({"error": "Not logged in"})
@@ -320,9 +339,15 @@ def unlike_cafe():
     cafe_id = int(request.json['cafe_id'])
     current_cafe = Cafe.query.get_or_404(cafe_id)
 
-
     g.user.liked_cafes.remove(current_cafe)
     db.session.commit()
 
-    res = {"unliked": current_cafe.id}
-    return jsonify(res)
+    response = {"unliked": current_cafe.id}
+    return jsonify(response)
+
+
+##########################################################
+#404
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("404.html")

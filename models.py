@@ -12,7 +12,7 @@ DEFAULT_USER_IMAGE = "https://cdn.pixabay.com/photo/2012/04/26/19/43/profile-429
 
 
 class City(db.Model):
-    """Cities for cafes."""
+    """Blueprint for making a city"""
 
     __tablename__ = 'cities'
 
@@ -37,7 +37,7 @@ class City(db.Model):
 
 
 class Cafe(db.Model):
-    """Cafe information."""
+    """Blueprint for making a cafe"""
 
     __tablename__ = 'cafes'
 
@@ -93,7 +93,8 @@ class Cafe(db.Model):
 
 
 class User(db.Model):
-    """User information"""
+    """Blueprint for making a user"""
+
     __tablename__ = 'users'
 
     id = db.Column(
@@ -199,19 +200,8 @@ class User(db.Model):
         return False
 
 
-def connect_db(app):
-    """Connect this database to provided Flask app.
-
-    You should call this in your Flask app.
-    """
-
-    app.app_context().push()
-    db.app = app
-    db.init_app(app)
-
-
 class Like(db.Model):
-    """A user can like a cafe."""
+    """Blueprint for a like"""
 
     __tablename__ = "likes"
 
@@ -226,3 +216,13 @@ class Like(db.Model):
         db.ForeignKey('cafes.id'),
         primary_key=True,
     )
+
+def connect_db(app):
+    """Connect this database to provided Flask app.
+
+    You should call this in your Flask app.
+    """
+
+    app.app_context().push()
+    db.app = app
+    db.init_app(app)
