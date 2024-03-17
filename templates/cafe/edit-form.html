@@ -4,8 +4,14 @@
 
 {% block content %}
 
-<h1 class="mb-4">Edit CafeName </h1>
+<h1 class="mb-4">Edit {{cafe.name}} </h1>
 
-<!-- form goes here -->>
+<form method="POST">
+  {% include "_form.html" %}
+  <div class="mt-4">
+    <a href="/cafes/{{cafe.id}}" class="btn btn-outline-secondary">Cancel</a>
+    <button class="btn btn-primary">Add</button>
+  </div>
+</form>
 
 {% endblock %}

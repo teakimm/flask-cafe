@@ -6,10 +6,13 @@
   <meta name="viewport"
     content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="stylesheet" href="https://bootswatch.com/4/journal/bootstrap.css">
+  <link rel="stylesheet" href="https://bootswatch.com/4/lux/bootstrap.css">
+  <link rel="stylesheet" href="/static/style.css">
   <script src="https://unpkg.com/jquery"></script>
   <script src="https://unpkg.com/bootstrap"></script>
-
+  <script src="/static/likes.js" defer></script>
+  <link rel="stylesheet"
+        href="https://www.unpkg.com/bootstrap-icons/font/bootstrap-icons.css">
   <title>{% block title %} title goes here {% endblock %}</title>
 </head>
 
@@ -30,22 +33,21 @@
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <!-- show when no one is logged in
-          <a href="XXX" class="btn-sm btn btn-outline-light">Sign Up</a>
-          <a href="XXX" class="btn-sm btn btn-outline-light">Log In</a>
-          -->
-
-          <!-- show when someone is logged in
-          <a href="/profile" class="nav-link">FULL NAME</a>
-          -->
+          {% if not g.user %}
+          <a href="/signup" class="btn-sm btn btn-outline-light">Sign Up</a>
+          <a href="/login" class="btn-sm btn btn-outline-light">Log In</a>
+          {% else %}
+          <a href="/profile" class="nav-link">{{ g.user.get_full_name() }}</a>
+          {% endif %}
         </li>
       </ul>
 
-      <!-- show when someone is logged in
-      <form class="form-inline my-2 my-lg-0">
+
+      {% if g.user %}
+      <form class="form-inline my-2 my-lg-0" method="POST" action="/logout">
         <button class="btn-sm btn btn-outline-light">Log Out</button>
       </form>
-      -->
+      {% endif %}
 
     </div>
   </nav>

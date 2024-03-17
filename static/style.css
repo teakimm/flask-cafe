@@ -1,0 +1,7 @@
+.like,.unlike {
+  background: none;
+  border: none;
+}
+.bi-heart-fill {
+  color: rgb(255, 69, 131);
+}

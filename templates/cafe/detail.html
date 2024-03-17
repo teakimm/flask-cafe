@@ -12,7 +12,32 @@
 
   <div class="col-12 col-sm-10 col-md-8">
 
-    <h1>{{ cafe.name }}</h1>
+    <div class="container">
+      <div class="row d-flex">
+          <div>
+              <h1>{{ cafe.name }}</h1>
+          </div>
+          {% if g.user %}
+
+          <div class="cafe-id" data-cafe-id="{{cafe.id}}"></div>
+
+          <div>
+              <form action="/api/like" method="POST" id="like-form">
+                  <button style="display: none;" class="ml-2 pt-2 like" type="submit">
+                    <i class="bi bi-heart pt-2 like"></i>
+                  </button>
+              </form>
+          </div>
+          <div>
+              <form action="/api/unlike" method="POST" id="unlike-form">
+                  <button style="display: none;" class="ml-2 pt-2 unlike" type="submit">
+                    <i class="bi bi-heart-fill pt-2"></i>
+                  </button>
+              </form>
+          </div>
+          {% endif %}
+      </div>
+  </div>
 
     <p class="lead">{{ cafe.description }}</p>
 
@@ -26,8 +51,12 @@
     <p>
       <a class="btn btn-outline-primary" href="/cafes/{{ cafe.id }}/edit">
         Edit Cafe
+
       </a>
+
     </p>
+
+    <img class="img-fluid" src="/static/maps/{{ cafe.id }}.jpg">
 
   </div>
 
